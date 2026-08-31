@@ -1,0 +1,27 @@
+Selected train_NNP/run_2
+Force  RMSE: 0.51913
+Energy RMSE: 16.9632
+
+
+big_test
+Energy RMSE: 0.2614 meV/atom
+Force  RMSE: 16.0987 meV/Angstrom
+
+
+Best weights: to put in dataset.sh
+69 68 48 77 
+
+Selected epochs:
+[69, 68, 48, 77]
+
+E errors:
+[0.00050258 0.00051913 0.00050594 0.00049533]
+
+F errors:
+[0.01684452 0.01696321 0.01707516 0.0168317 ]
+
+E errors (meV/atom):
+[0.50258 0.51913 0.50594 0.49533]
+
+F errors (meV/Angstrom):
+[16.8445 16.9632 17.0752 16.8317]

@@ -1,0 +1,140 @@
+# ============================================================
+# LAMMPS input file: mW water NPT simulation
+# ============================================================
+
+# Print commands to both screen and log file
+echo both
+
+
+# ============================================================
+# 1. Simulation parameters
+# ============================================================
+
+# Temperature
+variable temperature_init  equal 300       # Initial temperature (K)
+variable temperature_final equal 300       # Final temperature (K)
+
+# Pressure
+variable pressure     equal 1.0            # Target pressure (bar; units = metal)
+variable pressureDamp equal 15.0           # Barostat damping time (ps)
+
+# Thermostat
+variable Tdamp equal 1.5                   # Thermostat damping time (ps)
+
+# Random seed
+variable seed equal 49895                  # Random seed for velocity initialization
+
+# Output frequencies
+variable out_freq  equal 50000             # Thermodynamic output frequency (steps)
+variable out_freq2 equal 50000             # Trajectory output frequency (steps)
+
+
+# ============================================================
+# 2. System definition
+# ============================================================
+
+units metal                                # Time = ps, distance = Å, energy = eV, pressure = bar
+atom_style atomic                          # mW water: one particle per water molecule
+boundary p p p                             # Periodic boundary conditions
+
+read_data input.data                       # Read initial configuration
+
+mass 1 18.015                              # Mass of one mW water particle
+
+
+# ============================================================
+# 3. Interatomic potential
+# ============================================================
+
+pair_style sw                              # Stillinger-Weber potential
+pair_coeff * * mW.sw mW                    # mW water parameterization
+
+newton on                                  # Use Newton's third law optimization
+
+
+# ============================================================
+# 4. Neighbor list settings
+# ============================================================
+
+neighbor 1.0 bin                           # Neighbor skin distance (Å)
+neigh_modify delay 0 every 1 check yes     # Update neighbor list as needed
+
+
+# ============================================================
+# 5. Thermodynamic output
+# ============================================================
+
+thermo_style custom step time temp pe etotal press vol density lx ly lz enthalpy
+
+# Output quantities:
+# step, time     Simulation progress
+# temp           Instantaneous temperature
+# pe             Potential energy
+# etotal         Total energy
+# press          Pressure
+# vol            Box volume
+# density        Instantaneous density
+# lx, ly, lz     Box lengths
+# enthalpy       H = E + PV
+
+thermo ${out_freq}
+
+
+# ============================================================
+# 6. Trajectory output
+# ============================================================
+
+dump 1 all custom ${out_freq2} water.lammpstrj id type x y z
+dump_modify 1 sort id                      # Keep atom ordering consistent between frames
+
+# NOTE:
+# This dump currently saves only atom ID, type, and positions.
+# If you also want forces for ML training, use:
+# dump 1 all custom ${out_freq2} water.lammpstrj id type x y z fx fy fz
+
+
+# ============================================================
+# 7. Initial velocities
+# ============================================================
+
+velocity all create ${temperature_init} ${seed} dist uniform mom yes rot yes
+
+# Assign initial velocities at temperature_init.
+# Remove center-of-mass momentum and angular momentum.
+
+
+# ============================================================
+# 8. Integrator: NPT simulation
+# ============================================================
+
+fix 1 all npt                                &
+    iso  ${pressure} ${pressure} ${pressureDamp} &
+    temp ${temperature_init} ${temperature_final} ${Tdamp}
+
+# Nose-Hoover thermostat/barostat
+# Pressure is kept at pressure.
+# Temperature is ramped from temperature_init to temperature_final.
+# Here both are 300 K, so this is an isothermal NPT run.
+
+
+# ============================================================
+# 9. Time integration
+# ============================================================
+
+timestep 0.002                             # 2 fs timestep
+
+# Write restart files every 2,000,000 steps.
+# LAMMPS alternates between these two files, avoiding quota problems.
+restart 10000000 restart.data.1 restart.data.2
+
+run 500000000                              # Total time = 500000000 * 0.002 ps = 1 microsecond
+
+
+# ============================================================
+# 10. Cleanup and final outputs
+# ============================================================
+
+unfix 1
+
+write_data water_final.data                # Final configuration in LAMMPS data format
+write_restart water_final.restart          # Final binary restart file

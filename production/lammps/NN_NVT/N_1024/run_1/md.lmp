@@ -1,0 +1,115 @@
+# Print commands to both screen and log file
+echo both
+
+# -------------------------------
+# Simulation parameters
+# -------------------------------
+variable nnpDir          string "/data/fs201232/sr41880/reweighting/nnp-water/"
+variable nnpCutoff       equal  4.3065
+
+variable temperature_init equal  300       # Initial temperature (K)
+variable temperature_final equal 300      # Final temperature for cooling ramp (K)
+
+variable pressure equal 1.0               # Target pressure (bar, since units = metal)
+variable pressureDamp equal 15.0          # Barostat damping parameter (ps)
+
+variable Tdamp equal 1.5                  # Thermostat damping parameter (ps)
+
+variable seed equal 730001                 # Random seed for velocity initialization
+
+variable out_freq equal  50000              # Thermodynamic output frequency (steps)
+variable out_freq2 equal 50000          # Trajectory output frequency (steps)
+
+# -------------------------------
+# System definition
+# -------------------------------
+
+units metal                               # Time = ps, distance = Å, energy = eV, pressure = bar
+atom_style atomic                         # Simple atomic system (appropriate for mW water)
+boundary p p p                            # Periodic boundary conditions in all directions
+
+read_data input.data                      # Read initial configuration
+replicate 2 2 2
+
+mass 1 18.015                             # Mass of mW particle (water molecule represented as single particle)
+
+# -------------------------------
+# Interatomic potential
+# -------------------------------
+pair_style hdnnp ${nnpCutoff} dir ${nnpDir} showew no resetew yes maxew 1000000
+#pair_style nnp dir ${nnpDir} showew no showewsum 100 resetew yes maxew 4000 calcd 5 maxcd 100.0 wricd 250 cflength 1.0 cfenergy 1.0 emap "1:Al, 2:Si, 3:Na, 4:O"
+pair_coeff * * O
+
+
+# -------------------------------
+# Neighbor list settings
+# -------------------------------
+
+neighbor 1.0 bin                          # Neighbor list cutoff buffer (Å)
+neigh_modify delay 0 every 1 check yes    # Update neighbor list every step if needed
+
+# -------------------------------
+# Thermodynamic output
+# -------------------------------
+
+thermo_style custom step time temp pe etotal press
+# Outputs:
+# step/time      → simulation progress
+# temp           → instantaneous temperature
+# pe             → potential energy
+# etotal         → total energy
+# press          → scalar pressure
+# vol            → box volume
+# density        → density (check how lammps does this, probably is the instantaneous density)
+# lx ly lz       → box lengths
+# enthalpy       → H = E + PV
+
+thermo ${out_freq}                        # Print thermodynamic info every out_freq steps
+
+# -------------------------------
+# Trajectory output for ML dataset
+# -------------------------------
+
+dump 1 all custom ${out_freq2} water.lammpstrj id type x y z 
+# Save atom ID, type, positions and forces.
+# Forces are required for MLIP training.
+
+dump_modify 1 sort id                     # Ensure consistent atom ordering between frames
+
+# -------------------------------
+# Initial velocities
+# -------------------------------
+
+velocity all create ${temperature_init} ${seed} dist uniform mom yes rot yes
+# Assign velocities corresponding to the initial temperature
+# Remove center-of-mass momentum and angular momentum
+
+# -------------------------------
+# Integrator: NPT cooling ramp
+# -------------------------------
+
+fix 1 all nvt temp ${temperature_init} ${temperature_final} ${Tdamp}
+#fix 1 all nvt temp ${temperature_init} ${temperature_final} ${Tdamp}
+
+#fix 1 all npt iso ${pressure} ${pressure} ${pressureDamp} temp ${temperature_init} ${temperature_final} ${Tdamp}
+# Nose-Hoover thermostat/barostat
+# Pressure kept at 1 bar
+
+# -------------------------------
+# Time integration
+# -------------------------------
+
+timestep 0.001
+
+restart 2000000 restart_1.data   restart_2.data            # Write restart file periodically
+
+run 500000000                              # Run simulation (total duration determined by timestep)
+
+# -------------------------------
+# Cleanup and final outputs
+# -------------------------------
+
+unfix 1                                   # Remove NPT fix
+
+write_data water_final.data               # Save final configuration (LAMMPS data format)
+write_restart water_final.restart         # Save restart state

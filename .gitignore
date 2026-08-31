@@ -1,0 +1,36 @@
+# Archived material kept locally only
+/old/
+/training/
+
+# Molecular-dynamics trajectories
+*.lammpstrj
+*.traj
+*.trajectory
+*.dcd
+*.xtc
+*.trr
+*.extxyz
+
+# LAMMPS-generated output and restart files
+log.lammps
+log.lammps.*
+nohup.out
+*.restart
+restart.*
+
+# n2p2-generated training and comparison output
+train-log.out
+function.data
+forces.comp
+energy.comp
+output.data
+
+# Archives and temporary Python/Jupyter files
+*.zip
+*.tar
+*.tar.gz
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.swp
+*.swo

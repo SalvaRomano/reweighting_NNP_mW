@@ -1,0 +1,113 @@
+# Print commands to both screen and log file
+echo both
+
+# -------------------------------
+# Simulation parameters
+# -------------------------------
+
+variable temperature_init  equal 200
+variable temperature_final equal 600
+
+variable seed equal 429895
+
+# timestep in ps, because units = metal
+variable dt equal 0.002
+
+# thermostat damping
+# around 100 timesteps = 100 * 0.002 ps = 0.2 ps
+variable Tdamp equal 0.2
+
+# output
+variable thermo_freq equal 2500
+variable dump_freq   equal 2500
+
+# run length
+# equilibration: 20 ps = 10000 steps
+# production:   100 ps = 50000 steps
+variable equil_steps equal 10000
+variable prod_steps  equal 250000
+
+# -------------------------------
+# System definition
+# -------------------------------
+
+units metal
+atom_style atomic
+boundary p p p
+
+read_data initial.data
+
+mass 1 18.015
+
+# -------------------------------
+# Interatomic potential: mW
+# -------------------------------
+
+pair_style sw
+pair_coeff * * mW.sw mW
+
+newton on
+
+# -------------------------------
+# Neighbor list settings
+# -------------------------------
+# For dense boxes, bin is fine.
+# For very dilute boxes, nsq can be safer.
+# If rho = 0.05 or 0.1 and memory problems appear, switch to:
+# neighbor 2.0 nsq
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# -------------------------------
+# Timestep
+# -------------------------------
+
+timestep ${dt}
+
+# -------------------------------
+# Thermodynamic output
+# -------------------------------
+
+thermo_style custom step time temp pe etotal press vol density lx ly lz
+thermo 0
+thermo_modify flush yes
+
+# -------------------------------
+# Initial velocities
+# -------------------------------
+
+velocity all create ${temperature_init} ${seed} dist gaussian mom yes rot yes
+
+# -------------------------------
+# Equilibration at low temperature
+# -------------------------------
+
+fix EQ all nvt temp ${temperature_init} ${temperature_init} ${Tdamp}
+
+run ${equil_steps}
+
+unfix EQ
+
+reset_timestep 0
+
+# -------------------------------
+# Production with temperature ramp
+# -------------------------------
+
+fix PROD all nvt temp ${temperature_init} ${temperature_final} ${Tdamp}
+thermo ${thermo_freq}
+dump 1 all custom ${dump_freq} water.lammpstrj id type x y z fx fy fz
+dump_modify 1 sort id
+
+run ${prod_steps}
+
+# -------------------------------
+# Cleanup and final outputs
+# -------------------------------
+
+undump 1
+unfix PROD
+
+write_data water_final.data
+write_restart water_final.restart

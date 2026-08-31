@@ -1,0 +1,7 @@
+run_4 in training folder.
+
+E errors (meV/atom):
+0.13866 
+
+F errors (meV/Angstrom):
+6.6154 
