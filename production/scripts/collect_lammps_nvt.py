@@ -48,6 +48,9 @@ NUMBER_RE = re.compile(
 )
 
 
+DEFAULT_MW_RERUN_ROOT = Path(__file__).resolve().parents[1] / "results/full_mw_trajectory"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -61,6 +64,13 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Output directory (default: PROJECT_ROOT/analysis)",
+    )
+    parser.add_argument(
+        "--mw-rerun-root",
+        type=Path,
+        default=DEFAULT_MW_RERUN_ROOT,
+        help="Directory with N_<N>/log.rerun_NNP.lammps NNP evaluations of every "
+        "saved mW frame (default: results/full_mw_trajectory)",
     )
     return parser.parse_args()
 
@@ -142,7 +152,33 @@ def classify_termination(log_text: str) -> str:
     return "interrupted"
 
 
-def collect(project_root: Path) -> pd.DataFrame:
+def retained_mw_steps(size: int, mw_rerun_root: Path) -> set[int] | None:
+    """Return mW steps represented by saved configurations in its NNP rerun.
+
+    The rerun must be the full-trajectory evaluation of every saved mW frame.
+    The older lammps/mW_NVT/N_*/log.rerun_NNP.lammps covered only the first
+    2,001 frames and must not be used to filter the thermo rows.
+    """
+    rerun_path = mw_rerun_root / f"N_{size}" / "log.rerun_NNP.lammps"
+    if not rerun_path.is_file():
+        warnings.warn(
+            f"No NNP rerun log found at {rerun_path}; retaining every thermo step"
+        )
+        return None
+    try:
+        rerun_text = rerun_path.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        warnings.warn(f"Could not read {rerun_path}: {exc}; retaining every thermo step")
+        return None
+    records = parse_thermo_blocks(rerun_text)
+    steps = {int(record["step"]) for record in records if np.isfinite(record["step"])}
+    if not steps:
+        warnings.warn(f"No saved steps found in {rerun_path}; retaining every thermo step")
+        return None
+    return steps
+
+
+def collect(project_root: Path, mw_rerun_root: Path = DEFAULT_MW_RERUN_ROOT) -> pd.DataFrame:
     """Collect complete simulations into one consistently shaped DataFrame."""
     all_records: list[dict[str, object]] = []
     discovered = discover_runs(project_root)
@@ -173,6 +209,20 @@ def collect(project_root: Path) -> pd.DataFrame:
             warnings.warn(
                 f"Including {reason} run after removing its last thermo row: {log_path}"
             )
+        if model == "mW":
+            saved_steps = retained_mw_steps(size, mw_rerun_root)
+            if saved_steps is not None:
+                before = len(thermo_records)
+                thermo_records = [
+                    record for record in thermo_records
+                    if int(record["step"]) in saved_steps
+                ]
+                removed = before - len(thermo_records)
+                if removed:
+                    warnings.warn(
+                        f"Removed {removed:,} thermo row(s) without a saved mW "
+                        f"configuration: {log_path}"
+                    )
         if not thermo_records:
             warnings.warn(f"Skipping run with no readable thermo rows: {log_path}")
             continue
@@ -210,7 +260,7 @@ def save_outputs(frame: pd.DataFrame, output_dir: Path) -> None:
         try:
             frame.to_parquet(parquet_path, index=False, engine="pyarrow")
             print(f"Saved {len(frame):,} frames to {parquet_path}")
-        except (ImportError, OSError, ValueError) as exc:
+        except (ImportError, KeyError, OSError, TypeError, ValueError) as exc:
             warnings.warn(f"Could not write Parquet output: {exc}")
     else:
         print("pyarrow is not installed; skipping Parquet output.")
@@ -234,7 +284,7 @@ def main() -> None:
     args = parse_args()
     project_root = args.project_root.resolve()
     output_dir = args.output_dir.resolve() if args.output_dir else project_root / "analysis"
-    frame = collect(project_root)
+    frame = collect(project_root, args.mw_rerun_root.resolve())
     save_outputs(frame, output_dir)
     print_summary(frame)
 
