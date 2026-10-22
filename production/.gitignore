@@ -1,0 +1,42 @@
+archive/
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Raw and derived simulation trajectories
+*.lammpstrj
+*.trj
+
+# Restart and final-state files
+*.restart
+restart.data.*
+water_final.data
+
+# LAMMPS and scheduler logs/output
+log.lammps
+log.*.lammps
+*.log
+out.*
+err.*
+screen.out
+nohup.out
+
+# Optional large binary tables; compact CSV results remain publishable.
+*.parquet
+
+# Temporary/editor/local files
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+.DS_Store
+.idea/
+.vscode/
+octave-workspace

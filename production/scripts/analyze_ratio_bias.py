@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--summary", type=Path)
     parser.add_argument("--fit-output", type=Path)
-    parser.add_argument("--figure-dir", type=Path, default=ROOT / "figures")
+    parser.add_argument("--figure-dir", type=Path, default=ROOT / "figures/Bias")
     parser.add_argument("--temperature", type=float, default=300.0,
                         help="Nominal NVT temperature in K (default: 300)")
     parser.add_argument("--n-bootstrap", type=int, default=N_BOOTSTRAP)

@@ -1,0 +1,219 @@
+{
+  "source": "/data/home/salvatorer26/projects/reweighting/production/analysis/thermo_all_with_cross_merged.csv",
+  "source_sha256": "11eeb48522fc10c7b6b134dd241a125c45ac508508f633f0754a9b31129808a9",
+  "potential_source": "/data/home/salvatorer26/projects/reweighting/production/lammps/mW_NVT/mW.sw",
+  "potential_sha256": "ed0aa2a26a782bcecd49009a030c352648ab4381a92116c803ee03cfeff66cf4",
+  "temperature_K": 300,
+  "jobs": [
+    {
+      "N": 64,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_64/run_1/water.lammpstrj",
+      "last_step": 315000000,
+      "n_source_frames": 6301
+    },
+    {
+      "N": 64,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_64/run_2/water.lammpstrj",
+      "last_step": 300850000,
+      "n_source_frames": 6018
+    },
+    {
+      "N": 64,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_64/run_3/water.lammpstrj",
+      "last_step": 66600000,
+      "n_source_frames": 1333
+    },
+    {
+      "N": 64,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_64/run_4/water.lammpstrj",
+      "last_step": 315000000,
+      "n_source_frames": 6301
+    },
+    {
+      "N": 64,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_64/run_5/water.lammpstrj",
+      "last_step": 315000000,
+      "n_source_frames": 6301
+    },
+    {
+      "N": 128,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_128/run_1/water.lammpstrj",
+      "last_step": 97900000,
+      "n_source_frames": 1959
+    },
+    {
+      "N": 128,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_128/run_2/water.lammpstrj",
+      "last_step": 291450000,
+      "n_source_frames": 5830
+    },
+    {
+      "N": 128,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_128/run_3/water.lammpstrj",
+      "last_step": 291450000,
+      "n_source_frames": 5830
+    },
+    {
+      "N": 128,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_128/run_4/water.lammpstrj",
+      "last_step": 291450000,
+      "n_source_frames": 5830
+    },
+    {
+      "N": 128,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_128/run_5/water.lammpstrj",
+      "last_step": 291450000,
+      "n_source_frames": 5830
+    },
+    {
+      "N": 256,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_256/run_1/water.lammpstrj",
+      "last_step": 258500000,
+      "n_source_frames": 5171
+    },
+    {
+      "N": 256,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_256/run_2/water.lammpstrj",
+      "last_step": 204750000,
+      "n_source_frames": 4096
+    },
+    {
+      "N": 256,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_256/run_3/water.lammpstrj",
+      "last_step": 240800000,
+      "n_source_frames": 4817
+    },
+    {
+      "N": 256,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_256/run_4/water.lammpstrj",
+      "last_step": 42700000,
+      "n_source_frames": 855
+    },
+    {
+      "N": 256,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_256/run_5/water.lammpstrj",
+      "last_step": 49700000,
+      "n_source_frames": 995
+    },
+    {
+      "N": 512,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_512/run_1/water.lammpstrj",
+      "last_step": 46400000,
+      "n_source_frames": 929
+    },
+    {
+      "N": 512,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_512/run_2/water.lammpstrj",
+      "last_step": 261000000,
+      "n_source_frames": 5221
+    },
+    {
+      "N": 512,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_512/run_3/water.lammpstrj",
+      "last_step": 114400000,
+      "n_source_frames": 2289
+    },
+    {
+      "N": 512,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_512/run_4/water.lammpstrj",
+      "last_step": 105150000,
+      "n_source_frames": 2104
+    },
+    {
+      "N": 512,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_512/run_5/water.lammpstrj",
+      "last_step": 227600000,
+      "n_source_frames": 4553
+    },
+    {
+      "N": 1024,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_1024/run_1/water.lammpstrj",
+      "last_step": 8050000,
+      "n_source_frames": 162
+    },
+    {
+      "N": 1024,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_1024/run_2/water.lammpstrj",
+      "last_step": 10950000,
+      "n_source_frames": 220
+    },
+    {
+      "N": 1024,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_1024/run_3/water.lammpstrj",
+      "last_step": 153150000,
+      "n_source_frames": 3064
+    },
+    {
+      "N": 1024,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_1024/run_4/water.lammpstrj",
+      "last_step": 61300000,
+      "n_source_frames": 1227
+    },
+    {
+      "N": 1024,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_1024/run_5/water.lammpstrj",
+      "last_step": 87300000,
+      "n_source_frames": 1747
+    },
+    {
+      "N": 2048,
+      "source_run": 1,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_2048/run_1/water.lammpstrj",
+      "last_step": 350000,
+      "n_source_frames": 8
+    },
+    {
+      "N": 2048,
+      "source_run": 2,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_2048/run_2/water.lammpstrj",
+      "last_step": 53350000,
+      "n_source_frames": 1068
+    },
+    {
+      "N": 2048,
+      "source_run": 3,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_2048/run_3/water.lammpstrj",
+      "last_step": 27750000,
+      "n_source_frames": 556
+    },
+    {
+      "N": 2048,
+      "source_run": 4,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_2048/run_4/water.lammpstrj",
+      "last_step": 30750000,
+      "n_source_frames": 616
+    },
+    {
+      "N": 2048,
+      "source_run": 5,
+      "trajectory": "/data/home/salvatorer26/projects/reweighting/production/lammps/NN_NVT/N_2048/run_5/water.lammpstrj",
+      "last_step": 1850000,
+      "n_source_frames": 38
+    }
+  ]
+}

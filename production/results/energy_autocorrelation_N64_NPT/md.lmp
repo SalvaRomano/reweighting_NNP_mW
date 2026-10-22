@@ -1,0 +1,55 @@
+# Independent N=64 mW NpT trajectory for potential-energy autocorrelation.
+echo both
+log log.lammps
+
+variable temperature equal 300.0
+variable pressure equal 1.0
+variable seed equal 20261006
+variable dt equal 0.001
+variable tdamp equal 0.2
+variable pressureDamp equal 15.0
+variable equil_steps equal 200000
+variable production_steps equal 4000000
+variable energy_interval equal 20
+variable trajectory_interval equal 200
+
+units metal
+atom_style atomic
+boundary p p p
+read_data ../../lammps/mW_NVT/N_64/input.data
+mass 1 18.015
+
+pair_style sw
+pair_coeff * * ../../lammps/mW_NVT/N_64/mW.sw mW
+newton on
+neighbor 1.0 bin
+neigh_modify delay 0 every 1 check yes
+
+timestep ${dt}
+velocity all create ${temperature} ${seed} dist gaussian mom yes rot yes
+fix thermostat_barostat all npt temp ${temperature} ${temperature} ${tdamp} &
+    iso ${pressure} ${pressure} ${pressureDamp}
+
+# Equilibrate the temperature and volume before collecting the time series.
+thermo_style custom step time temp pe
+thermo 1000
+thermo_modify flush yes
+run ${equil_steps}
+
+# Reset the step counter; LAMMPS time retains the elapsed equilibration time.
+reset_timestep 0
+print "BEGIN_AUTOCORRELATION_PRODUCTION"
+thermo ${energy_interval}
+compute instantaneous_pressure all pressure thermo_temp
+variable instantaneous_volume equal lx*ly*lz
+fix state_output all ave/time 1 ${energy_interval} ${energy_interval} &
+    c_instantaneous_pressure v_instantaneous_volume file pressure_volume.dat
+dump trajectory all custom ${trajectory_interval} water.lammpstrj id type x y z
+dump_modify trajectory sort id
+run ${production_steps}
+
+undump trajectory
+unfix state_output
+unfix thermostat_barostat
+write_data final.data
+write_restart final.restart

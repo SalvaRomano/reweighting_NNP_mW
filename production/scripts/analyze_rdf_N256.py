@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.rdf import radial_edges  # noqa: E402
-from src.rdf_features import coordination_to_cutoff, first_shell_features  # noqa: E402
+from src.rdf_features import (COMMON_CUTOFF_A, coordination_to_cutoff,  # noqa: E402
+                              first_shell_features)
 
 
 RDF_COLUMNS = ("g_NNP", "g_mW", "g_NNP_to_mW", "g_mW_to_NNP")
@@ -30,7 +31,9 @@ def parse_args():
                         default=ROOT / "lammps/mW_NVT/N_256/water.lammpstrj")
     parser.add_argument("--results-dir", type=Path, default=ROOT / "results/rdf_N256")
     parser.add_argument("--figure-prefix", type=Path,
-                        default=ROOT / "figures/rdf_N256_residuals")
+                        default=ROOT / "figures/Structural/rdf_N256_residuals")
+    parser.add_argument("--cutoff", type=float, default=COMMON_CUTOFF_A,
+                        help=f"Common coordination cutoff in A (default: {COMMON_CUTOFF_A})")
     return parser.parse_args()
 
 
@@ -83,10 +86,9 @@ def main():
 
     # Peak and minimum positions are reported per curve, but the first
     # minimum is shallow and noisy: one 0.02 A bin shifts coordination by
-    # about 0.08. All coordination numbers therefore use one common cutoff,
-    # the first minimum of the direct mW RDF, as in summarize_rdf_all_sizes.py.
-    common_cutoff = first_shell_features(
-        r, rdf["g_mW"].to_numpy(dtype=float), edges, density)["first_min_r_A"]
+    # about 0.08. All coordination numbers therefore use the same common
+    # cutoff as summarize_rdf_all_sizes.py.
+    common_cutoff = args.cutoff
     rows = []
     for name in RDF_COLUMNS:
         g = rdf[name].to_numpy(dtype=float)

@@ -50,7 +50,7 @@ neigh_modify delay 0 every 1 check yes    # Update neighbor list every step if n
 # Thermodynamic output
 # -------------------------------
 
-thermo_style custom step time temp pe etotal press vol density lx ly lz enthalpy
+thermo_style custom step time temp pe etotal press
 # Outputs:
 # step/time      → simulation progress
 # temp           → instantaneous temperature
@@ -86,7 +86,7 @@ velocity all create ${temperature_init} ${seed} dist uniform mom yes rot yes
 # Integrator: NPT cooling ramp
 # -------------------------------
 
-fix 1 all npt iso ${pressure} ${pressure} ${pressureDamp} temp ${temperature_init} ${temperature_final} ${Tdamp}
+fix 1 all nvt temp ${temperature_init} ${temperature_final} ${Tdamp}
 # Nose-Hoover thermostat/barostat
 # Pressure kept at 1 bar
 # Temperature linearly ramped from 320 K → 230 K
@@ -95,9 +95,9 @@ fix 1 all npt iso ${pressure} ${pressure} ${pressureDamp} temp ${temperature_ini
 # Time integration
 # -------------------------------
 
-timestep 0.002                            # 2 fs timestep (conservative for mW water)
+timestep 0.001                            # 2 fs timestep (conservative for mW water)
 
-restart 2000000 restart.data               # Write restart file periodically
+#restart 2000000 restart.data               # Write restart file periodically
 
 run 500000000                              # Run simulation (total duration determined by timestep)
 

@@ -5,7 +5,7 @@
 This project studies practical limitations of exponential reweighting between
 the mW water Hamiltonian and a neural-network potential (NNP). It covers
 bidirectional energy reweighting, loss of overlap with system size,
-fourth-order cumulant expansions, structural observables, and finite-sample
+cumulant expansions (with bootstrap errors), structural observables, and finite-sample
 bias of the self-normalized ratio estimator.
 
 The active processed data and figures cover `N = 64, 128, 256, 512, 1024,
@@ -139,7 +139,7 @@ For normalized weights, the effective sample size is
 N_eff = 1 / sum_i p_i^2.
 ```
 
-Figures under `figures/reweighting/` show effective-sample fractions, maximum
+Figures under `figures/Reweighting/` show effective-sample fractions, maximum
 and top-ten weight concentration, energy errors, and thermo traces. Overlap
 decreases strongly with increasing system size.
 
@@ -147,7 +147,9 @@ decreases strongly with increasing system size.
 
 The implementation uses `G = cross_poteng/N` and
 `V = -beta*(cross_poteng-poteng)`, with the total energy difference in `V`.
-Explicit mixed cumulants and partial sums are evaluated through fourth order.
+Explicit mixed cumulants C1-C4 are evaluated with bootstrap standard errors
+(1,000 frame resamples), and the empirical Taylor series of the sample tilted
+mean is extended through order 12.
 
 ```bash
 python scripts/analyze_cumulant_expansion.py
@@ -155,11 +157,27 @@ python scripts/verify_cumulant_derivatives.py
 python scripts/plot_cumulant_expansion.py
 ```
 
-Current numerical results are in `results/cumulant_expansion/summary.csv` and
-`derivative_verification.csv`. Tests and numerical derivatives of the stably
-shifted tilted mean independently verify the formulas. Figures under
-`figures/cumulant_expansion/` show truncation errors and contribution
-magnitudes versus order for both directions.
+Results are in `results/cumulant_expansion/`: `summary.csv` (C1-C4, SE,
+|C_k|/SE), `taylor_series_order12.csv`, and `derivative_verification.csv`
+(maximum discrepancy 4.2e-9 absolute, 4.2e-5 relative). Figures under
+`figures/Cumulant/` show signed C1-C4 with error bars and the
+order-12 truncation error for both directions.
+
+- C1 is the only clearly resolved correction in most cases, especially for
+  NNP to mW. C2-C4 are not resolved (all below 3 SE) with the available frames.
+- Their uncertainty grows rapidly with N, because V is extensive and
+  higher-order moments become increasingly noisy (SE of C4 grows ~640x from
+  N=64 to N=2048). The overlap problem is not removed by the cumulant
+  expansion; it reappears as a rapidly growing statistical cost for the
+  higher-order coefficients.
+- `|G_m - G_full|` measures how the Taylor series of the finite empirical
+  sample converges to that same sample's fully reweighted mean. It is not the
+  uncertainty of the population cumulant expansion.
+- For N <= 1024 the empirical series approaches the full reweighted value by
+  order 12. At N=2048, especially NNP to mW, the expansion is not practically
+  convergent at lambda = 1 over the accessible orders.
+
+Details: `results/cumulant_expansion/README.md`.
 
 ## Structural analysis
 
@@ -179,9 +197,13 @@ size through `--size`. Existing non-256 curves are in
 `results/rdf_all_sizes/`; the representative N=256 curve is
 `analysis/rdf_N256.csv`.
 
-For each size, the first minimum of the direct mW RDF defines one common
-coordination cutoff for direct NNP, direct mW, NNP-to-mW, and mW-to-NNP. The
-summary is `results/rdf_all_sizes/coordination_summary.csv`. Current figures
+All coordination numbers, for every size and all four curves (direct NNP,
+direct mW, NNP-to-mW, mW-to-NNP), use one cutoff `r_c = 3.50 Å`
+(`COMMON_CUTOFF_A` in `src/rdf_features.py`): the mean of the six per-size
+direct mW first minima (3.49-3.53 Å, set by bin noise). At this fixed cutoff
+coordination follows the NVT box density, not N: sizes sharing a density
+(64/512 at 0.979, 128/1024 at 0.967, 256/2048 at 0.999 g/cm³) agree to about
+0.002. The summary is `results/rdf_all_sizes/coordination_summary.csv`. Current figures
 include N=256, N=1024, and N=2048 RDFs, N=256 residuals, coordination versus
 size, and before/after structural error.
 
@@ -225,11 +247,32 @@ python scripts/plot_combined_bias.py --size 512
 python scripts/report_bias_fit_comparison.py --sizes 64 512
 ```
 
-At N=64 the theoretical bias is very small compared with bootstrap-mean
-fluctuations. At N=512 the bias is measurable in both directions and agrees
+At N=64 the bias is below what 100,000 bootstrap repetitions can resolve,
+so N=64 is not used to test the formula. At N=512 the bias is measurable in both directions and agrees
 with the predicted `1/n` coefficient: `B_empirical/B_theory` is 0.95 and 0.90
 for n>=100, and about 0.76-0.79 for n>=50, where the next-order `1/n^2` term
 is still about 30-50% of the leading term.
+
+### Leading-order bias versus size
+
+Staying at order `1/n`, `B_theory` needs only moments of each source dataset,
+so it is computed for all six sizes:
+
+```bash
+python scripts/analyze_bias_vs_size.py
+python scripts/plot_combined_bias.py --size 512
+```
+
+It uses the exact identity `B = -(M/N_eff)(theta_w2 - theta)`, where
+`theta_w2` averages G with squared weights. Outputs are
+`results/bias_vs_size/summary.csv` and `figures/Bias/vs_size/`: |B| with a
+95% frame-resampling interval, its two factors, and |bias|/SE at the actual
+sample size. `figures/Bias/scaled_bias_N512_combined.*` compares the N=512
+bootstrap `n*bias` with `B_theory` and its band. B grows mainly through
+overlap loss (M/N_eff from 1.2 to 250). With the available frames the bias is
+at most ~1% of the statistical error up to N=1024 and 9-31% at N=2048, where
+the 1/n expansion is marginal (N_eff < 100). See
+`results/bias_vs_size/README.md`.
 
 ## Reproducing current figures
 
@@ -237,13 +280,15 @@ is still about 30-50% of the leading term.
 |---|---|---|
 | Reweighting overlap and errors | `scripts/plot_reweighting_diagnostics.py` | `analysis/energy_averages_and_reweighting.csv` |
 | Thermo traces | `scripts/plot_thermo_vs_configuration.py` | Master merged CSV |
-| Cumulant truncation/contributions | `scripts/plot_cumulant_expansion.py` | `results/cumulant_expansion/summary.csv` |
+| Cumulant coefficients ± SE, order-12 truncation | `scripts/plot_cumulant_expansion.py` | `results/cumulant_expansion/summary.csv`, `taylor_series_order12.csv` |
 | N=256 RDF | `scripts/compute_rdf_N256.py --size 256` | Master CSV and trajectories |
 | N=256 RDF residuals | `scripts/analyze_rdf_N256.py` | `analysis/rdf_N256.csv` |
 | Coordination and structural error | `scripts/summarize_rdf_all_sizes.py` | Per-size RDF CSVs |
 | N=1024/N=2048 RDFs | `scripts/plot_rdf_selected_sizes.py --sizes 1024 2048` | Per-size RDF CSVs |
 | Bias and scaled bias | `scripts/analyze_ratio_bias.py --size <N>` | Master merged CSV |
 | Combined directional bias | `scripts/plot_combined_bias.py --size <N>` | `analysis/bias_N<N>.csv` |
+| Bias coefficient, factors, bias/SE vs N | `scripts/analyze_bias_vs_size.py` | Master merged CSV |
+| N=512 scaled bias vs B band | `scripts/plot_combined_bias.py --size 512` | `analysis/bias_N512.csv`, `results/bias_vs_size/summary.csv` |
 
 ## Validation
 

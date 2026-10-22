@@ -33,7 +33,7 @@ energy difference in the exponent. Effective sample sizes are 8361.0459 for
 NNP to mW and 5134.5951 for mW to NNP.
 
 The numerical curves are in `analysis/rdf_N256.csv`; the PNG and PDF figures
-are `figures/rdf_N256.*`. A separate brute-force minimum-image histogram of
+are `figures/Structural/rdf_N256.*`. A separate brute-force minimum-image histogram of
 an actual frame matched the cKDTree implementation. The four curves average
 about 0.99 over 8–9 Å, a useful normalization check.
 
@@ -42,15 +42,15 @@ about 0.99 over 8–9 Å, a useful normalization check.
 Run `python scripts/analyze_rdf_N256.py` from `production/`. The signed
 residuals are direct NNP minus direct mW, reweighted NNP-to-mW minus direct
 mW, and reweighted mW-to-NNP minus direct NNP. Their numerical curves are in
-`results/rdf_N256/residuals.csv`; the plot is `figures/rdf_N256_residuals.*`.
+`results/rdf_N256/residuals.csv`; the plot is `figures/Structural/rdf_N256_residuals.*`.
 
 `results/rdf_N256/first_shell.csv` reports the first prominent peak, the
 following prominent minimum, and coordination number for each of the four
 RDFs. Features use the original unsmoothed curves, with peak prominence 0.05
 and minimum prominence 0.03. Peak and minimum positions are reported for each
-curve, but all four coordination numbers use one common cutoff `r_cut_A`: the
-first minimum (bin center) of the direct mW RDF, as in
-`results/rdf_all_sizes/coordination_summary.csv`. The minimum is shallow, and
+curve, but all four coordination numbers use one common cutoff
+`r_cut_A = 3.50 Å` (`COMMON_CUTOFF_A` in `src/rdf_features.py`), the same
+cutoff used for every size in `results/rdf_all_sizes/coordination_summary.csv`. The minimum is shallow, and
 a one-bin (0.02 Å) shift of a per-curve cutoff changes coordination by about
 0.08, which would swamp the reweighting differences. Coordination is
 `4πρ ∫₀^r_cut g(r)r²dr`, evaluated with each RDF bin constant over its radial

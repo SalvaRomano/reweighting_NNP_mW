@@ -1,0 +1,2 @@
+n_samples,sample_interval_ps,production_time_ps,mean_temperature_K,std_temperature_K,mean_poteng_eV,std_poteng_eV,acf_1_over_e_crossing_ps,acf_first_zero_crossing_ps,integrated_autocorrelation_time_ps,integration_positive_sequence_stop_ps,statistical_inefficiency_samples,effective_independent_samples,n_blocks_for_acf_sem,max_reported_lag_ps
+200001,0.02,4000,299.856077664,30.850252799,-27.9446321967,0.330890705695,0.383362290643,1.88173995176,0.403665718924,1.9,40.3665718923,4954.61939482,8,499.98

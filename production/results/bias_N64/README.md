@@ -21,8 +21,8 @@ definition.
 `analysis/bias_N64.csv` contains the 100,000-repetition bootstrap results and
 `analysis/bias_N64_summary.csv` contains the full-source moments. Population
 variance and covariance use `ddof=0`. Figures are named
-`figures/bias_N64_<direction>.*` and
-`figures/scaled_bias_N64_<direction>.*`.
+`figures/Bias/bias_N64_<direction>.*` and
+`figures/Bias/scaled_bias_N64_<direction>.*`.
 
 `analysis/bias_N64_fits.csv` contains through-origin weighted least-squares
 fits of `bias = B_empirical/n` at lower cutoffs n=50, 100, 200, and 500. The

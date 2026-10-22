@@ -1,0 +1,2 @@
+n_samples,target_pressure_bar,mean_pressure_bar,std_pressure_bar,mean_volume_A3,std_volume_A3,mean_density_g_cm3,std_density_g_cm3,mean_box_length_A
+200000,1.0,1.7376805471,1907.73091658,1922.1798183,39.7455350332,0.996446418529,0.020490712461,12.4330431298

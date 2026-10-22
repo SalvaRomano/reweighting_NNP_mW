@@ -1,0 +1,20 @@
+# Evaluate retained corrected-mW configurations with the NNP Hamiltonian
+echo both
+log log.rerun_NNP.lammps
+units metal
+atom_style atomic
+boundary p p p
+read_data initial.data
+mass 1 18.015
+variable nnpDir string "/data/home/salvatorer26/projects/reweighting/nnp-water"
+variable nnpCutoff equal 4.3065
+pair_style nnp dir ${nnpDir} showew no showewsum 1000000000000000 resetew yes maxew 1000000 calcd 20 emap "1:O"
+pair_coeff * * ${nnpCutoff}
+newton on
+neighbor 1.0 bin
+neigh_modify delay 0 every 1 check yes
+thermo_style custom step time temp pe etotal press vol density lx ly lz enthalpy
+thermo 1
+thermo_modify flush yes
+timestep 0.001
+rerun "/data/home/salvatorer26/projects/reweighting/production/lammps/mW_NVT/N_128/water_first_2001.lammpstrj" dump x y z box yes

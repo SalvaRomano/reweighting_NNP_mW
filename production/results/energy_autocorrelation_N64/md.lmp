@@ -1,0 +1,47 @@
+# Independent N=64 mW trajectory for potential-energy autocorrelation.
+echo both
+log log.lammps
+
+variable temperature equal 300.0
+variable seed equal 20261005
+variable dt equal 0.001
+variable tdamp equal 0.2
+variable equil_steps equal 200000
+variable production_steps equal 4000000
+variable energy_interval equal 20
+variable trajectory_interval equal 200
+
+units metal
+atom_style atomic
+boundary p p p
+read_data ../../lammps/mW_NVT/N_64/input.data
+mass 1 18.015
+
+pair_style sw
+pair_coeff * * ../../lammps/mW_NVT/N_64/mW.sw mW
+newton on
+neighbor 1.0 bin
+neigh_modify delay 0 every 1 check yes
+
+timestep ${dt}
+velocity all create ${temperature} ${seed} dist gaussian mom yes rot yes
+fix thermostat all nvt temp ${temperature} ${temperature} ${tdamp}
+
+# Equilibrate without writing a trajectory.
+thermo_style custom step time temp pe
+thermo 1000
+thermo_modify flush yes
+run ${equil_steps}
+
+# Reset time so the production energy series begins at zero.
+reset_timestep 0
+print "BEGIN_AUTOCORRELATION_PRODUCTION"
+thermo ${energy_interval}
+dump trajectory all custom ${trajectory_interval} water.lammpstrj id type x y z
+dump_modify trajectory sort id
+run ${production_steps}
+
+undump trajectory
+unfix thermostat
+write_data final.data
+write_restart final.restart
