@@ -4,4 +4,17 @@ E errors (meV/atom):
 0.13866 
 
 F errors (meV/Angstrom):
-6.6154 
+6.6154
+
+
+
+
+
+Training energy RMSE: 0.138662783 meV/atom
+Test energy RMSE:     0.132727495 meV/atom
+Training force RMSE:  6.61544812 meV/Å
+Test force RMSE:      6.81080962 meV/Å
+Training energy MAE:  0.105818233 meV/atom
+Test energy MAE:      0.101277771 meV/atom
+Training force MAE:   5.15752074 meV/Å
+Test force MAE:       5.21222388 meV/Å 
